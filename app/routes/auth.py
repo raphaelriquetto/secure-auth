@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from ..auth import hash_password, verify_password
+from ..auth import create_access_token, hash_password, verify_password
 from ..database import get_db
 from ..models import User
 from ..schemas import RegisterRequest, UserResponse, LoginRequest
@@ -71,9 +71,10 @@ def login(
             detail="E-mail ou senha inválidos"
         )
 
+    access_token = create_access_token(user.id)
+
     return{
         "message": "Login realizado com sucesso!",
-        "user_id": user.id,
-        "name": user.name,
-        "email": user.email
+        "access_token": access_token,
+        "token_type": "bearer"
     }

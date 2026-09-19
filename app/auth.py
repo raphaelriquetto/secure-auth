@@ -1,4 +1,14 @@
+import os
+
+import jwt
+from dotenv import load_dotenv
 from argon2 import PasswordHasher
+
+from argon2 import PasswordHasher
+
+load_dotenv()
+
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 
 password_hasher = PasswordHasher()
 
@@ -13,3 +23,17 @@ def verify_password(password: str, password_hash: str) -> bool:
         return True
     except Exception:
         return False
+
+#recebe o id do usuário e retorna um token JWT
+def create_access_token(user_id: int) -> str:
+    payload = {
+        "sub": str(user_id)
+    }
+
+    token = jwt.encode(
+        payload,
+        JWT_SECRET_KEY,
+        algorithm="HS256"
+    )
+
+    return token
