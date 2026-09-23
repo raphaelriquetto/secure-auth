@@ -1,10 +1,8 @@
 import os
-
 import jwt
 from dotenv import load_dotenv
 from argon2 import PasswordHasher
-
-from argon2 import PasswordHasher
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -26,8 +24,10 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 #recebe o id do usuário e retorna um token JWT
 def create_access_token(user_id: int) -> str:
+    expiration = datetime.utcnow() + timedelta(minutes=30)
     payload = {
-        "sub": str(user_id)
+        "sub": str(user_id),
+        "exp": expiration
     }
 
     token = jwt.encode(
@@ -37,3 +37,12 @@ def create_access_token(user_id: int) -> str:
     )
 
     return token
+
+#responsável por pegar o JWT e verificar se é valido
+def decode_acess_token(token: str) -> dict:
+    payload = jwt.decode(
+        token,
+        JWT_SECRET_KEY,
+        algorithms=["HS256"]
+    )
+    return payload

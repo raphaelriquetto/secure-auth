@@ -7,6 +7,7 @@ from ..auth import create_access_token, hash_password, verify_password
 from ..database import get_db
 from ..models import User
 from ..schemas import RegisterRequest, UserResponse, LoginRequest
+from ..dependencies import get_current_user_id
 
 router = APIRouter(
     prefix="/auth",
@@ -77,4 +78,24 @@ def login(
         "message": "Login realizado com sucesso!",
         "access_token": access_token,
         "token_type": "bearer"
+    }
+
+@router.get("/me")
+def get_me(
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    user = db.get(User, user_id)
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Usuário não encontrado"
+        )
+
+    return{
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "created_at": user.created_at
     }
