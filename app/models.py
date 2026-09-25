@@ -11,17 +11,14 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False) #nullable=False significa que não pode ficar vazio.
-    email: Mapped[str] = mapped_column(
-        String(255),
-        unique=True, #significa que dois usuários não podem possuir o mesmo e-mail.
-        nullable=False
-    )
-    password_hash: Mapped[str] = mapped_column(
-        String(255),
-        nullable=False
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        default = datetime.utcnow
-    )
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False) #significa que dois usuários não podem possuir o mesmo e-mail
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default = datetime.utcnow)
 
+#cria a tabela para armazenar os tokens revogados
+class RevokedToken(Base):
+    __tablename__ = "revoked_tokens"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    jti: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)

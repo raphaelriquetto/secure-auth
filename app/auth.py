@@ -1,5 +1,6 @@
 import os
 import jwt
+import uuid
 from dotenv import load_dotenv
 from argon2 import PasswordHasher
 from datetime import datetime, timedelta
@@ -24,10 +25,12 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 #recebe o id do usuário e retorna um token JWT
 def create_access_token(user_id: int) -> str:
+    token_id = str(uuid.uuid4())
     expiration = datetime.utcnow() + timedelta(minutes=30)
     payload = {
         "sub": str(user_id),
-        "exp": expiration
+        "exp": expiration,
+        "jti": token_id
     }
 
     token = jwt.encode(

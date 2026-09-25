@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -5,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from ..auth import create_access_token, hash_password, verify_password
 from ..database import get_db
-from ..models import User
+from ..models import User, RevokedToken
 from ..schemas import RegisterRequest, UserResponse, LoginRequest
 from ..dependencies import get_current_user_id
 
@@ -82,10 +84,11 @@ def login(
 
 @router.get("/me")
 def get_me(
-    user_id: int = Depends(get_current_user_id),
+    auth_data: dict = Depends(get_current_user_id),
     db: Session = Depends(get_db)
 ):
-    user = db.get(User, user_id)
+    user_id = auth_data["user_id"]
+    user = db.get(User, auth_data["user_id"])
 
     if user is None:
         raise HTTPException(
@@ -98,4 +101,21 @@ def get_me(
         "name": user.name,
         "email": user.email,
         "created_at": user.created_at
+    }
+
+@router.post("/Logout")
+def logout(
+    auth_data: dict = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    revoked_token = RevokedToken(
+        jti = auth_data["jti"],
+        expires_at = datetime.utcfromtimestamp(auth_data["expires_at"])
+    )
+
+    db.add(revoked_token)
+    db.commit()
+
+    return{
+        "message": "Logout realizado com sucesso!"
     }

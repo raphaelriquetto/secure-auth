@@ -25,7 +25,6 @@ class Base(DeclarativeBase):
 #Essa função será responsável por fornecer uma conexão/sessão com o banco para cada requisição.
 def get_db():
     db = SessionLocal()
-
     try:
         yield db
     finally:
