@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
 from .auth import decode_acess_token
 from .database import get_db
@@ -15,10 +16,15 @@ def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(secu
 
     try:
         payload = decode_acess_token(token)
-    except Exception:
+    except ExpiredSignatureError:
         raise HTTPException(
             status_code=401,
             detail="Token inválido ou expirado"
+        )
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=401,
+            detail="Token inválido"
         )
 
     user_id = payload.get("sub")

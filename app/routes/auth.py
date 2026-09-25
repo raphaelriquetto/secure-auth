@@ -103,7 +103,7 @@ def get_me(
         "created_at": user.created_at
     }
 
-@router.post("/Logout")
+@router.post("/logout")
 def logout(
     auth_data: dict = Depends(get_current_user_id),
     db: Session = Depends(get_db)

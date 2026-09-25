@@ -4,6 +4,7 @@ import uuid
 from dotenv import load_dotenv
 from argon2 import PasswordHasher
 from datetime import datetime, timedelta
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
 load_dotenv()
 
