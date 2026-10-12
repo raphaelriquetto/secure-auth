@@ -2,7 +2,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ..auth import create_access_token, hash_password, verify_password
@@ -114,7 +114,15 @@ def logout(
     )
 
     db.add(revoked_token)
-    db.commit()
+
+    try:
+        db.commit()
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Erro ao realizar logout"
+        )
 
     return{
         "message": "Logout realizado com sucesso!"
